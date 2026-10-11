@@ -1,170 +1,159 @@
+# 🛡️ SENTINEL WAF — Web Application Firewall
 
-# SENTINEL WAF
-### Python-Based Web Application Firewall
+A Python-based Web Application Firewall (WAF) prototype designed to detect and block common web attacks, log suspicious requests, and provide a visual security monitoring dashboard.
 
-## 1. Project Overview
+## 🚀 Project Overview
 
-SENTINEL WAF is a Python-based Web Application Firewall prototype designed to inspect incoming HTTP requests, identify suspicious patterns, block detected threats, and record security events.
+SENTINEL WAF inspects incoming HTTP requests and identifies suspicious patterns associated with SQL Injection and Cross-Site Scripting (XSS). Detected requests are blocked by the Flask application and recorded in a CSV log for analysis.
 
-It provides a local demonstration environment for understanding web application security, threat detection, security logging, and incident reporting.
+The project includes a **navy-blue and orange security dashboard** built with Streamlit to display request statistics, attack analysis, and security logs.
 
-## 2. Objectives
+## 🎯 Objectives
 
-- Inspect incoming HTTP requests.
-- Detect SQL Injection patterns.
-- Detect Cross-Site Scripting (XSS) patterns.
-- Block requests matching configured detection rules.
-- Store security events in a CSV log file.
-- Display security statistics through a dashboard.
-- Generate incident reports for blocked requests.
+- Detect common web attack patterns.
+- Block requests identified as suspicious.
+- Maintain request and incident logs.
+- Analyse blocked requests and attack categories.
+- Generate CSV incident reports.
+- Provide a user-friendly security monitoring dashboard.
 
-## 3. Technologies Used
+## ✨ Features
+
+- **SQL Injection Detection:** Identifies selected SQL injection patterns.
+- **XSS Detection:** Detects selected script-related patterns.
+- **Request Filtering:** Returns a blocked response for detected requests.
+- **Security Logging:** Records request details, status, and detected attack type.
+- **Incident Reports:** Exports logged incidents to CSV.
+- **Interactive Dashboard:** Displays request statistics, attack summaries, and security logs.
+- **Custom Dashboard Theme:** Navy-blue backgrounds with orange highlights for a security-centre appearance.
+
+## 🧰 Technologies Used
 
 - Python
 - Flask
 - Streamlit
 - Pandas
 - Regular Expressions
-- CSV File Handling
-- HTML/HTTP concepts
+- CSV
 
-## 4. Main Features
+## 🏗️ Project Architecture
 
-### Request Inspection
-Examines incoming requests using configured detection patterns.
+1. A request reaches the Flask application.
+2. The WAF engine inspects the request for configured attack patterns.
+3. The application allows the request or blocks it with an HTTP 403 response.
+4. Request details are recorded in `waf_logs.csv`.
+5. The Streamlit dashboard reads the log data and presents security statistics.
+6. The report generator exports incident information to `incident_report.csv`.
 
-### SQL Injection Detection
-Identifies selected SQL Injection patterns in request data.
+## 📁 Project Structure
 
-### XSS Detection
-Identifies selected script-related patterns in request data.
-
-### Request Blocking
-Returns HTTP 403 Forbidden when a request matches a configured attack pattern.
-
-### Security Logging
-Stores request timestamps, HTTP methods, paths, IP addresses, statuses, attack types, and actions in `waf_logs.csv`.
-
-### Security Dashboard
-Displays request statistics, attack categories, and recent security events using Streamlit.
-
-### Incident Reporting
-Generates `incident_report.csv` containing recorded blocked requests.
-
-## 5. System Architecture
-
-Client Request
-      |
-      v
-Flask Web Application
-      |
-      v
-SENTINEL WAF Inspection Engine
-      |
-      v
-Pattern-Based Threat Detection
-      |
-      +---- Suspicious Request ----> HTTP 403 Block
-      |
-      +---- Normal Request --------> Allow
-      |
-      v
-CSV Security Logging
-      |
-      +----> Streamlit Dashboard
-      |
-      +----> Incident Report Generator
-
-## 6. Project Files
-
-- `app.py` — Flask application and request filtering.
-- `waf_engine.py` — Threat detection rules and inspection logic.
-- `dashboard.py` — Streamlit security dashboard.
-- `generate_report.py` — Incident report generation.
-- `waf_logs.csv` — Persistent request logs.
-- `incident_report.csv` — Report of blocked requests.
-- `.venv/` — Python virtual environment.
-
-## 7. Installation and Execution
-
-### Step 1: Open the project folder
-
-```bash
-cd ~/Desktop/waf-project
+```text
+sentinel-waf/
+├── app.py
+├── waf_engine.py
+├── dashboard.py
+├── generate_report.py
+├── requirements.txt
+├── README.md
+└── .gitignore
 ```
 
-### Step 2: Activate the virtual environment
+## ⚙️ Installation and Setup
+
+### 1. Clone the repository
 
 ```bash
+git clone https://github.com/krish15406/sentinel-waf.git
+cd sentinel-waf
+```
+
+### 2. Create and activate a virtual environment
+
+```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### Step 3: Start the WAF application
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Start the WAF application
 
 ```bash
 python app.py
 ```
 
-The local Flask application runs at:
+The Flask application runs locally on port `5001`, according to the current project configuration.
 
-`http://127.0.0.1:5001`
+### 5. Start the dashboard
 
-### Step 4: Start the dashboard
-
-Open another terminal and run:
+Open a second terminal in the project directory, activate the virtual environment, and run:
 
 ```bash
-cd ~/Desktop/waf-project
-source .venv/bin/activate
 streamlit run dashboard.py
 ```
 
-Open the local URL displayed by Streamlit, usually:
+Open the local URL printed by Streamlit in your browser.
 
-`http://localhost:8501`
+## 🧪 Testing
 
-### Step 5: Generate an incident report
+Example local tests:
 
-After recording requests, run:
+**Normal request**
+
+```bash
+curl -i http://127.0.0.1:5001/
+```
+
+**SQL Injection detection test**
+
+```bash
+curl -i -G --data-urlencode "q=UNION SELECT username" http://127.0.0.1:5001/search
+```
+
+**XSS detection test**
+
+```bash
+curl -i -G --data-urlencode "q=<script>alert(1)</script>" http://127.0.0.1:5001/search
+```
+
+The two suspicious test requests should be blocked by the configured detection rules. These examples are intended for testing the local application.
+
+## 📊 Incident Reporting
+
+Run the report generator after requests have been logged:
 
 ```bash
 python generate_report.py
 ```
 
-## 8. Testing and Results
+The script generates `incident_report.csv` and summarises the logged incidents.
 
-The prototype was tested with local HTTP requests.
+## ⚠️ Limitations
 
-| Test | Expected Result | Observed Result |
-|---|---|---|
-| Normal request to `/` | Allow | HTTP 200 |
-| SQL Injection test pattern | Block | HTTP 403 |
-| XSS test pattern | Block | HTTP 403 |
-| Security log generation | Save request details | Successful |
-| Incident report generation | Export blocked requests | Successful |
+- This is an educational prototype, not a production-ready WAF.
+- Detection relies on predefined patterns and may miss attacks or incorrectly flag legitimate requests.
+- The current implementation uses local CSV files rather than a centralised log platform.
+- The dashboard requires access to the log file generated by the application.
+- Production deployment would require additional security controls, robust testing, secure configuration, and a suitable hosting architecture.
 
-The recorded report contained two blocked requests: one SQL Injection detection and one XSS detection.
+## 🔮 Future Enhancements
 
-## 9. Limitations
+- Improve detection rules and reduce false positives.
+- Add IP-based rate limiting.
+- Introduce database-backed logging.
+- Add authentication and role-based dashboard access.
+- Implement improved alerting and reporting.
+- Add automated testing and deployment.
+- Connect the dashboard to a securely hosted WAF service.
 
-- Detection relies on configured regular-expression patterns.
-- The prototype does not detect every possible attack.
-- It is designed for local demonstration, not production deployment.
-- Logs are stored in a local CSV file.
-- It does not replace a professionally tested WAF or secure application design.
+## 👩‍💻 Author
 
-## 10. Future Enhancements
+Developed as a Python-based cybersecurity learning project focused on web attack detection, request monitoring, and incident reporting.
 
-- Add more detection rules.
-- Support JSON and structured application logs.
-- Add severity levels and alert notifications.
-- Introduce filtering and date-based analytics.
-- Add authentication and access control.
-- Improve automated testing and detection accuracy.
-- Integrate with a database and external monitoring tools.
+---
 
-## 11. Conclusion
-
-SENTINEL WAF demonstrates the basic principles of web application firewalls through request inspection, pattern-based threat detection, request blocking, persistent security logging, dashboard visualization, and incident report generation.
-
-It provides a foundation for further learning in Python programming and web application security.
+**SENTINEL WAF — Detect. Block. Monitor.**
